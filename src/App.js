@@ -90,6 +90,7 @@ function App() {
       </div>
 
       <h1>Attempts : {turns}</h1>
+      {cards.find(card => card.matched === false) ? "" : <h1>You win!!!</h1>}
     </div>
 
     
