@@ -18,6 +18,7 @@ function App() {
   const [turns, setTurns] = useState(0)
   const [choiceOne, setChoiceOne] = useState(null);
   const [choiceTwo, setChoiceTwo] = useState(null);
+  const [disabled, setDisabled] = useState(false);
 
 
   // This function will get ran each game restart.
@@ -27,6 +28,8 @@ function App() {
       .map(card => ({ ...card, id: Math.random() }))
       
     // Update card state with shuffled cards.
+    setChoiceOne(null);
+    setChoiceTwo(null);
     setCards(shuffledCards)
     setTurns(0)
   }
@@ -36,20 +39,13 @@ function App() {
     choiceOne ? setChoiceTwo(card) : setChoiceOne(card);
   }
 
-  // Pass in a function and a dependency array
+  // Recreate the cards with the updated matched property value.
   useEffect(() => {
     if (choiceOne && choiceTwo) {
-
-      // If we have a match, update card state
+      setDisabled(true);
       if (choiceOne.src === choiceTwo.src)  {
-
-        // Take previous card states to update state.
         setCards(prevCards => {
-
-          // Return a new array of cards with the marked match
           return prevCards.map(card => {
-
-            // Find the matching card and update it.
             if (card.src === choiceOne.src)
               return {...card, matched: true}
             else  
@@ -60,17 +56,21 @@ function App() {
       else 
         console.log("no match.");
 
-      resetTurn();
-    }
+      setTimeout(() => resetTurn(), 1000);    }
   }, [choiceOne, choiceTwo]);
 
-  console.log(cards);
-
+  // Reset choices and increase turn
   const resetTurn = () => {
     setChoiceOne(null);
     setChoiceTwo(null);
     setTurns(prevTurns => prevTurns + 1)
+    setDisabled(false);
   }
+
+  // Start game automatically
+  useEffect(() => {
+    shuffleCards();
+  }, [])
 
   return (
     <div className="App">
@@ -83,10 +83,16 @@ function App() {
             key={card.id} 
             card={card}
             handleChoice={handleChoice} 
+            flipped={card === choiceOne || card === choiceTwo || card.matched }
+            disabled={disabled}
           />
         ))}
       </div>
+
+      <h1>Attempts : {turns}</h1>
     </div>
+
+    
   );
 }
 
